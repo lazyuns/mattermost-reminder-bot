@@ -12,7 +12,7 @@ REMINDER_TYPE = sys.argv[1] if len(sys.argv) > 1 else "jira_morning"
 MESSAGES = {
     "scrum": (
         "@channel 🏁🐵 [스크럼 알림]\n"
-        "오늘도 화이팅! 평일 오전 9:45 스크럼 시작합니다. C103 팀원 전원 참석 부탁드립니다. 😊"
+        "오늘도 화이팅! 평일 오전 9:30 스크럼 시작합니다. C103 팀원 전원 참석 부탁드립니다. 😊"
     ),
     "jira_morning": (
         "@channel ☀️🐵 [Jira 업데이트 알림 - 오전]\n"
