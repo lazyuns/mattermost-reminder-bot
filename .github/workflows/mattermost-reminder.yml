@@ -1,6 +1,12 @@
 name: Mattermost Reminder Bot
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/mattermost-reminder.yml"
+      - "bot/reminder.py"
   workflow_dispatch:
     inputs:
       reminder_type:
@@ -49,6 +55,7 @@ jobs:
           fi
 
       - name: Send to Mattermost
+        if: ${{ github.event_name != 'push' }}
         run: python3 bot/reminder.py "${{ steps.resolve.outputs.type }}"
         env:
           MATTERMOST_WEBHOOK_URL: ${{ secrets.MATTERMOST_WEBHOOK_URL }}
