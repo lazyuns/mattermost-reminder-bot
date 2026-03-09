@@ -2,6 +2,7 @@ import json
 import os
 import sys
 import urllib.request
+from urllib.error import HTTPError, URLError
 
 WEBHOOK_URL = os.environ["MATTERMOST_WEBHOOK_URL"]
 CHANNEL = os.getenv("MATTERMOST_CHANNEL", "")
@@ -31,15 +32,34 @@ payload = {"text": MESSAGES[REMINDER_TYPE]}
 if CHANNEL:
     payload["channel"] = CHANNEL
 
-req = urllib.request.Request(
-    WEBHOOK_URL,
-    data=json.dumps(payload).encode("utf-8"),
-    headers={"Content-Type": "application/json"},
-    method="POST",
-)
+def send(webhook_payload):
+    req = urllib.request.Request(
+        WEBHOOK_URL,
+        data=json.dumps(webhook_payload).encode("utf-8"),
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
 
-with urllib.request.urlopen(req) as res:
-    body = res.read().decode("utf-8")
-    if res.status != 200:
-        raise RuntimeError(f"Failed: {res.status}, body={body}")
-    print("Mattermost sent:", body)
+    with urllib.request.urlopen(req) as res:
+        body = res.read().decode("utf-8")
+        if res.status != 200:
+            raise RuntimeError(f"Failed: {res.status}, body={body}")
+        print("Mattermost sent:", body)
+
+
+try:
+    send(payload)
+except HTTPError as e:
+    error_body = e.read().decode("utf-8", errors="replace")
+    if CHANNEL and e.code in (400, 404):
+        # Some servers reject channel override even when webhook itself is valid.
+        print(
+            f"Channel override failed ({e.code}). Retrying without MATTERMOST_CHANNEL. "
+            f"body={error_body}"
+        )
+        payload.pop("channel", None)
+        send(payload)
+    else:
+        raise RuntimeError(f"Failed: {e.code}, body={error_body}") from e
+except URLError as e:
+    raise RuntimeError(f"Network error while sending Mattermost webhook: {e}") from e

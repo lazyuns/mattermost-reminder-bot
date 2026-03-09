@@ -12,8 +12,8 @@ on:
     - cron: "30 0 * * 1-5"
     # KST 평일 10:00 = UTC 01:00
     - cron: "0 1 * * 1-5"
-    # KST 평일 17:00 = UTC 08:00
-    - cron: "0 8 * * 1-5"
+    # KST 평일 17:10 = UTC 08:10
+    - cron: "10 8 * * 1-5"
 
 jobs:
   send-reminder:
@@ -21,23 +21,54 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Validate required secrets
+        shell: bash
+        env:
+          MATTERMOST_WEBHOOK_URL: ${{ secrets.MATTERMOST_WEBHOOK_URL }}
+        run: |
+          if [ -z "$MATTERMOST_WEBHOOK_URL" ]; then
+            echo "Missing required secret: MATTERMOST_WEBHOOK_URL"
+            exit 1
+          fi
+
       - name: Resolve reminder type
         id: resolve
         shell: bash
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "type=${{ github.event.inputs.reminder_type }}" >> "$GITHUB_OUTPUT"
-          elif [ "${{ github.event.schedule }}" = "30 0 * * 1-5" ]; then
-            echo "type=scrum" >> "$GITHUB_OUTPUT"
-          elif [ "${{ github.event.schedule }}" = "0 1 * * 1-5" ]; then
-            echo "type=jira_morning" >> "$GITHUB_OUTPUT"
-          elif [ "${{ github.event.schedule }}" = "0 8 * * 1-5" ]; then
-            echo "type=jira_evening" >> "$GITHUB_OUTPUT"
+            type="${{ github.event.inputs.reminder_type }}"
+            stale="false"
+          elif [ "${{ github.event_name }}" = "schedule" ]; then
+            current_hour="$(date -u +%H)"
+            current_minute="$(date -u +%M)"
+            minute_num=$((10#$current_minute))
+            stale="false"
+
+            if [ "$current_hour" = "00" ] && [ "$minute_num" -le 50 ]; then
+              type="scrum"
+            elif [ "$current_hour" = "01" ] && [ "$minute_num" -le 20 ]; then
+              type="jira_morning"
+            elif [ "$current_hour" = "08" ] && [ "$minute_num" -le 20 ]; then
+              type="jira_evening"
+            else
+              echo "UTC time window mismatch (hour=$current_hour, minute=$current_minute) -> mark stale"
+              stale="true"
+              type="unknown"
+            fi
           else
-            echo "type=jira_morning" >> "$GITHUB_OUTPUT"
+            echo "Unsupported event: ${{ github.event_name }}"
+            exit 1
           fi
 
+          echo "type=$type" >> "$GITHUB_OUTPUT"
+          echo "stale=$stale" >> "$GITHUB_OUTPUT"
+
+      - name: Skip stale scheduled run
+        if: ${{ steps.resolve.outputs.stale == 'true' }}
+        run: echo "No message sent because this scheduled run was delayed too much."
+
       - name: Send to Mattermost
+        if: ${{ steps.resolve.outputs.stale != 'true' }}
         run: python3 bot/reminder.py "${{ steps.resolve.outputs.type }}"
         env:
           MATTERMOST_WEBHOOK_URL: ${{ secrets.MATTERMOST_WEBHOOK_URL }}
