@@ -7,13 +7,16 @@ on:
         description: "scrum | jira_morning | jira_evening"
         required: true
         default: "scrum"
-  schedule:
-    # KST 평일 09:30 = UTC 00:30
-    - cron: "30 0 * * 1-5"
-    # KST 평일 10:00 = UTC 01:00
-    - cron: "0 1 * * 1-5"
-    # KST 평일 17:10 = UTC 08:10
-    - cron: "10 8 * * 1-5"
+      channel_override:
+        description: "테스트용 개인 채널 (@username 또는 channel_id). 비우면 기본 채널 사용"
+        required: false
+        default: ""
+  repository_dispatch:
+    types:
+      - send_reminder
+      - scrum
+      - jira_morning
+      - jira_evening
 
 jobs:
   send-reminder:
@@ -37,40 +40,53 @@ jobs:
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             type="${{ github.event.inputs.reminder_type }}"
-            stale="false"
-          elif [ "${{ github.event_name }}" = "schedule" ]; then
-            current_hour="$(date -u +%H)"
-            current_minute="$(date -u +%M)"
-            minute_num=$((10#$current_minute))
-            stale="false"
-
-            if [ "$current_hour" = "00" ] && [ "$minute_num" -le 50 ]; then
-              type="scrum"
-            elif [ "$current_hour" = "01" ] && [ "$minute_num" -le 20 ]; then
-              type="jira_morning"
-            elif [ "$current_hour" = "08" ] && [ "$minute_num" -le 20 ]; then
-              type="jira_evening"
+          elif [ "${{ github.event_name }}" = "repository_dispatch" ]; then
+            action_type="${{ github.event.action }}"
+            payload_type="${{ github.event.client_payload.reminder_type }}"
+            if [ -n "$payload_type" ]; then
+              type="$payload_type"
             else
-              echo "UTC time window mismatch (hour=$current_hour, minute=$current_minute) -> mark stale"
-              stale="true"
-              type="unknown"
+              type="$action_type"
             fi
           else
             echo "Unsupported event: ${{ github.event_name }}"
             exit 1
           fi
 
-          echo "type=$type" >> "$GITHUB_OUTPUT"
-          echo "stale=$stale" >> "$GITHUB_OUTPUT"
+          case "$type" in
+            scrum|jira_morning|jira_evening) ;;
+            *)
+              echo "Unsupported reminder type: $type"
+              exit 1
+              ;;
+          esac
 
-      - name: Skip stale scheduled run
-        if: ${{ steps.resolve.outputs.stale == 'true' }}
-        run: echo "No message sent because this scheduled run was delayed too much."
+          echo "type=$type" >> "$GITHUB_OUTPUT"
+
+      - name: Resolve channel target
+        id: target
+        shell: bash
+        run: |
+          channel="${{ secrets.MATTERMOST_CHANNEL }}"
+          strict_channel_override="false"
+
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ github.event.inputs.channel_override }}" ]; then
+            channel="${{ github.event.inputs.channel_override }}"
+            strict_channel_override="true"
+            echo "Using channel override for manual test run: $channel"
+          elif [ "${{ github.event_name }}" = "repository_dispatch" ] && [ -n "${{ github.event.client_payload.channel_override }}" ]; then
+            channel="${{ github.event.client_payload.channel_override }}"
+            strict_channel_override="true"
+            echo "Using channel override from repository_dispatch payload: $channel"
+          fi
+
+          echo "channel=$channel" >> "$GITHUB_OUTPUT"
+          echo "strict_channel_override=$strict_channel_override" >> "$GITHUB_OUTPUT"
 
       - name: Send to Mattermost
-        if: ${{ steps.resolve.outputs.stale != 'true' }}
         run: python3 bot/reminder.py "${{ steps.resolve.outputs.type }}"
         env:
           MATTERMOST_WEBHOOK_URL: ${{ secrets.MATTERMOST_WEBHOOK_URL }}
-          MATTERMOST_CHANNEL: ${{ secrets.MATTERMOST_CHANNEL }}
+          MATTERMOST_CHANNEL: ${{ steps.target.outputs.channel }}
+          MATTERMOST_STRICT_CHANNEL_OVERRIDE: ${{ steps.target.outputs.strict_channel_override }}
           JIRA_URL: ${{ secrets.JIRA_URL }}

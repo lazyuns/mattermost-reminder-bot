@@ -6,6 +6,7 @@ from urllib.error import HTTPError, URLError
 
 WEBHOOK_URL = os.environ["MATTERMOST_WEBHOOK_URL"]
 CHANNEL = os.getenv("MATTERMOST_CHANNEL", "")
+STRICT_CHANNEL_OVERRIDE = os.getenv("MATTERMOST_STRICT_CHANNEL_OVERRIDE", "").lower() in ("1", "true", "yes")
 JIRA_URL = os.getenv("JIRA_URL", "https://your-domain.atlassian.net/jira/software/projects/XXX/boards/1")
 
 REMINDER_TYPE = sys.argv[1] if len(sys.argv) > 1 else "jira_morning"
@@ -52,6 +53,10 @@ try:
 except HTTPError as e:
     error_body = e.read().decode("utf-8", errors="replace")
     if CHANNEL and e.code in (400, 404):
+        if STRICT_CHANNEL_OVERRIDE:
+            raise RuntimeError(
+                f"Channel override failed in strict mode ({e.code}), body={error_body}"
+            ) from e
         # Some servers reject channel override even when webhook itself is valid.
         print(
             f"Channel override failed ({e.code}). Retrying without MATTERMOST_CHANNEL. "
