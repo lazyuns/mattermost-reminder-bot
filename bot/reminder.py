@@ -8,7 +8,7 @@ WEBHOOK_URL = os.environ["MATTERMOST_WEBHOOK_URL"]
 CHANNEL = os.getenv("MATTERMOST_CHANNEL", "")
 STRICT_CHANNEL_OVERRIDE = os.getenv("MATTERMOST_STRICT_CHANNEL_OVERRIDE", "").lower() in ("1", "true", "yes")
 SCRUM_DOC_URL = "https://www.notion.so/31f2947a9611803aa292c4890f9a7d0c"
-JIRA_DOC_URL = "https://www.notion.so/31f2947a9611803aa292c4890f9a7d0c"
+JIRA_DOC_URL = "https://ssafy.atlassian.net/jira/software/c/projects/S14P21C103/boards/12733"
 
 REMINDER_TYPE = sys.argv[1] if len(sys.argv) > 1 else "jira_morning"
 
