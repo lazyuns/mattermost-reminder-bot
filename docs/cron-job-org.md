@@ -31,11 +31,7 @@ You can use either pattern. Pattern A is simpler.
 ```
 
 ```json
-{"event_type":"jira_morning"}
-```
-
-```json
-{"event_type":"jira_evening"}
+{"event_type":"jira"}
 ```
 
 ### Pattern B: generic event + payload
@@ -55,7 +51,7 @@ Optional test override channel:
 {
   "event_type": "send_reminder",
   "client_payload": {
-    "reminder_type": "jira_evening",
+    "reminder_type": "jira",
     "channel_override": "@your_username"
   }
 }
@@ -64,7 +60,6 @@ Optional test override channel:
 ## Recommended cron-job.org jobs (UTC)
 
 - Scrum (KST 09:30): `30 0 * * 1-5`
-- Jira morning (KST 10:00): `0 1 * * 1-5`
-- Jira evening (KST 17:10): `10 8 * * 1-5`
+- Jira (KST 10:00, 12:00, 14:00, 16:00): `0 1,3,5,7 * * 1-5`
 
-Create 3 cron-job.org jobs, one per reminder type.
+Create 2 cron-job.org jobs: one for scrum, one for jira.
