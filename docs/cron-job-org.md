@@ -31,6 +31,10 @@ You can use either pattern. Pattern A is simpler.
 ```
 
 ```json
+{"event_type":"scrum_prep"}
+```
+
+```json
 {"event_type":"jira"}
 ```
 
@@ -67,9 +71,11 @@ Optional test override channel:
 
 ## Recommended cron-job.org jobs (UTC)
 
+- Scrum prep (KST 09:20): `20 0 * * 1-5`
 - Scrum (KST 09:30): `30 0 * * 1-5`
 - Jira morning (KST 10:00): `0 1 * * 1-5`
-- Jira status check (KST 12:00, 14:00, 16:00): `0 3,5,7 * * 1-5`
-- Jira evening (KST 17:10): `10 8 * * 1-5`
+- Jira update first ping (KST 08:50): `50 23 * * 0-4`
+- Jira update follow-ups every 3h (KST 11:50, 14:50): `50 2,5 * * 1-5`
+- Jira evening (KST 17:50): `50 8 * * 1-5`
 
-Create 4 cron-job.org jobs: scrum, jira_morning, jira, jira_evening.
+Create 6 cron-job.org jobs: scrum_prep, scrum, jira_morning, jira (first), jira (follow-ups), jira_evening.
