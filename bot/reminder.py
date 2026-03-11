@@ -17,31 +17,31 @@ MESSAGES = {
         "@channel\n"
         "### ✍️🐵 스크럼 회의록 사전 작성 알림\n"
         "오전 9:30 스크럼 전, 노션 회의록에 오늘 공유할 내용을 미리 작성해주세요.\n"
-        f"- **문서:** [👉 Scrum 링크]({SCRUM_DOC_URL})"
+        f"- [👉 Scrum 링크]({SCRUM_DOC_URL})"
     ),
     "scrum": (
         "@channel\n"
         "### 🏁🐵 스크럼 알림\n"
         "평일 오전 9:30 스크럼 시작합니다. C103 팀원 전원 참석 부탁드립니다.\n"
-        f"- **문서:** [👉 Scrum 링크]({SCRUM_DOC_URL})"
+        f"- [👉 Scrum 링크]({SCRUM_DOC_URL})"
     ),
     "jira_morning": (
         "@channel\n"
         "### ☀️🐵 Jira 업데이트 알림 (오전)\n"
         "오늘 작업 시작 전에 Jira 상태를 업데이트해주세요.\n"
-        f"- **보드:** [👉 Jira 링크]({JIRA_DOC_URL})"
+        f"- [👉 Jira 링크]({JIRA_DOC_URL})"
     ),
     "jira": (
         "@channel\n"
         "### 🔄🐵 Jira 업데이트 알림\n"
         "작업 진행 중 Jira 진행상태/작업로그를 최신으로 유지해주세요.\n"
-        f"- **보드:** [👉 Jira 링크]({JIRA_DOC_URL})"
+        f"- [👉 Jira 링크]({JIRA_DOC_URL})"
     ),
     "jira_evening": (
         "@channel\n"
         "### 🌙🐵 Jira 업데이트 알림 (오후)\n"
         "하루 마무리 전에 Jira 진행상태/작업로그를 업데이트해주세요.\n"
-        f"- **보드:** [👉 Jira 링크]({JIRA_DOC_URL})"
+        f"- [👉 Jira 링크]({JIRA_DOC_URL})"
     ),
 }
 
@@ -72,7 +72,7 @@ def build_gitlab_mr_message():
     if action:
         lines.append(f"- **이벤트:** `{action}`")
     if url:
-        lines.append(f"- **링크:** [👉 MR 링크]({url})")
+        lines.append(f"- [👉 MR 링크]({url})")
 
     return "\n".join(lines)
 
