@@ -16,27 +16,27 @@ MESSAGES = {
     "scrum_prep": (
         "@channel ✍️🐵 [스크럼 회의록 사전 작성 알림]\n"
         "오전 9:30 스크럼 전, 노션 회의록에 오늘 공유할 내용 미리 작성 부탁드립니다. 끼끼 🙊\n"
-        f"[scrum 링크]({SCRUM_DOC_URL})"
+        f"[👉 scrum 링크]({SCRUM_DOC_URL})"
     ),
     "scrum": (
         "@channel 🏁🐵 [스크럼 알림]\n"
         "오늘도 화이팅! 평일 오전 9:30 스크럼 시작합니다. C103 팀원 전원 참석 부탁드립니다. 끼끼 🙊\n"
-        f"[scrum 링크]({SCRUM_DOC_URL})"
+        f"[👉 scrum 링크]({SCRUM_DOC_URL})"
     ),
     "jira_morning": (
         "@channel ☀️🐵 [Jira 업데이트 알림 - 오전]\n"
         f"좋은 아침이에요! 오늘 작업 시작 전에 Jira 상태 업데이트 부탁드립니다. 끼끼 🙊\n"
-        f"[jira 링크]({JIRA_DOC_URL})"
+        f"[👉 jira 링크]({JIRA_DOC_URL})"
     ),
     "jira": (
         "@channel 🔄🐵 [Jira 업데이트 알림]\n"
         f"작업 중간중간 Jira 진행상태/작업로그를 최신으로 업데이트해주세요, 끼끼 🙊\n"
-        f"[jira 링크]({JIRA_DOC_URL})"
+        f"[👉 jira 링크]({JIRA_DOC_URL})"
     ),
     "jira_evening": (
         "@channel 🌙🐵 [Jira 업데이트 알림 - 오후]\n"
         f"하루 마무리 전에 Jira 진행상태/작업로그 업데이트 부탁드립니다. 고생 많았어요! 끼끼 🙊\n"
-        f"[jira 링크]({JIRA_DOC_URL})"
+        f"[👉 jira 링크]({JIRA_DOC_URL})"
     ),
 }
 
@@ -46,7 +46,12 @@ def build_gitlab_mr_message():
     iid = os.getenv("GITLAB_MR_IID", "").strip()
     title = os.getenv("GITLAB_MR_TITLE", "").strip()
     url = os.getenv("GITLAB_MR_URL", "").strip()
+    actor = os.getenv("GITLAB_MR_ACTOR", "").strip()
     author = os.getenv("GITLAB_MR_AUTHOR", "").strip()
+
+    # Backward compatibility: old payload used `author` for event actor.
+    if not actor and author:
+        actor = author
 
     mr_ref = f"{project}!{iid}" if project and iid else ""
 
@@ -55,12 +60,14 @@ def build_gitlab_mr_message():
         lines.append(f"MR: {mr_ref}")
     if title:
         lines.append(f"제목: {title}")
+    if actor:
+        lines.append(f"수행자: {actor}")
     if author:
         lines.append(f"작성자: {author}")
     if action:
         lines.append(f"이벤트: {action}")
     if url:
-        lines.append(f"[MR 링크]({url})")
+        lines.append(f"[👉 MR 링크]({url})")
 
     return "\n".join(lines)
 

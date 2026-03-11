@@ -56,7 +56,8 @@ You can use either pattern. Pattern A is simpler.
     "iid": "123",
     "title": "feat: add MR notification",
     "url": "https://gitlab.example.com/group/project/-/merge_requests/123",
-    "author": "홍길동"
+    "actor": "홍길동",
+    "author": "김싸피"
   }
 }
 ```

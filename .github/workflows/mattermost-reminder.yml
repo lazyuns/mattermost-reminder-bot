@@ -118,4 +118,5 @@ jobs:
           GITLAB_MR_IID: ${{ github.event.client_payload.iid }}
           GITLAB_MR_TITLE: ${{ github.event.client_payload.title }}
           GITLAB_MR_URL: ${{ github.event.client_payload.url }}
+          GITLAB_MR_ACTOR: ${{ github.event.client_payload.actor }}
           GITLAB_MR_AUTHOR: ${{ github.event.client_payload.author }}
