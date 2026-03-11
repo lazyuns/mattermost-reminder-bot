@@ -60,7 +60,7 @@ def build_gitlab_mr_message():
 
     mr_ref = f"{project}!{iid}" if project and iid else ""
 
-    lines = ["@channel", "### 🔔 GitLab MR 알림"]
+    lines = ["@channel", "### :rocket: GitLab MR 알림"]
     if mr_ref:
         lines.append(f"- **MR:** `{mr_ref}`")
     if title:
