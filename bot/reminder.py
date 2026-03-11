@@ -14,29 +14,34 @@ REMINDER_TYPE = sys.argv[1] if len(sys.argv) > 1 else "jira_morning"
 
 MESSAGES = {
     "scrum_prep": (
-        "@channel ✍️🐵 [스크럼 회의록 사전 작성 알림]\n"
-        "오전 9:30 스크럼 전, 노션 회의록에 오늘 공유할 내용 미리 작성 부탁드립니다. 끼끼 🙊\n"
-        f"[👉 scrum 링크]({SCRUM_DOC_URL})"
+        "@channel\n"
+        "### ✍️ 스크럼 회의록 사전 작성 알림\n"
+        "오전 9:30 스크럼 전, 노션 회의록에 오늘 공유할 내용을 미리 작성해주세요.\n"
+        f"- **문서:** [👉 Scrum 링크]({SCRUM_DOC_URL})"
     ),
     "scrum": (
-        "@channel 🏁🐵 [스크럼 알림]\n"
-        "오늘도 화이팅! 평일 오전 9:30 스크럼 시작합니다. C103 팀원 전원 참석 부탁드립니다. 끼끼 🙊\n"
-        f"[👉 scrum 링크]({SCRUM_DOC_URL})"
+        "@channel\n"
+        "### 🏁 스크럼 알림\n"
+        "평일 오전 9:30 스크럼 시작합니다. C103 팀원 전원 참석 부탁드립니다.\n"
+        f"- **문서:** [👉 Scrum 링크]({SCRUM_DOC_URL})"
     ),
     "jira_morning": (
-        "@channel ☀️🐵 [Jira 업데이트 알림 - 오전]\n"
-        f"좋은 아침이에요! 오늘 작업 시작 전에 Jira 상태 업데이트 부탁드립니다. 끼끼 🙊\n"
-        f"[👉 jira 링크]({JIRA_DOC_URL})"
+        "@channel\n"
+        "### ☀️ Jira 업데이트 알림 (오전)\n"
+        "오늘 작업 시작 전에 Jira 상태를 업데이트해주세요.\n"
+        f"- **보드:** [👉 Jira 링크]({JIRA_DOC_URL})"
     ),
     "jira": (
-        "@channel 🔄🐵 [Jira 업데이트 알림]\n"
-        f"작업 중간중간 Jira 진행상태/작업로그를 최신으로 업데이트해주세요, 끼끼 🙊\n"
-        f"[👉 jira 링크]({JIRA_DOC_URL})"
+        "@channel\n"
+        "### 🔄 Jira 업데이트 알림\n"
+        "작업 진행 중 Jira 진행상태/작업로그를 최신으로 유지해주세요.\n"
+        f"- **보드:** [👉 Jira 링크]({JIRA_DOC_URL})"
     ),
     "jira_evening": (
-        "@channel 🌙🐵 [Jira 업데이트 알림 - 오후]\n"
-        f"하루 마무리 전에 Jira 진행상태/작업로그 업데이트 부탁드립니다. 고생 많았어요! 끼끼 🙊\n"
-        f"[👉 jira 링크]({JIRA_DOC_URL})"
+        "@channel\n"
+        "### 🌙 Jira 업데이트 알림 (오후)\n"
+        "하루 마무리 전에 Jira 진행상태/작업로그를 업데이트해주세요.\n"
+        f"- **보드:** [👉 Jira 링크]({JIRA_DOC_URL})"
     ),
 }
 
@@ -55,19 +60,19 @@ def build_gitlab_mr_message():
 
     mr_ref = f"{project}!{iid}" if project and iid else ""
 
-    lines = ["@channel 🔔🐵 [GitLab MR 알림]"]
+    lines = ["@channel", "### 🔔 GitLab MR 알림"]
     if mr_ref:
-        lines.append(f"MR: {mr_ref}")
+        lines.append(f"- **MR:** `{mr_ref}`")
     if title:
-        lines.append(f"제목: {title}")
+        lines.append(f"- **제목:** {title}")
     if actor:
-        lines.append(f"수행자: {actor}")
+        lines.append(f"- **수행자:** {actor}")
     if author:
-        lines.append(f"작성자: {author}")
+        lines.append(f"- **작성자:** {author}")
     if action:
-        lines.append(f"이벤트: {action}")
+        lines.append(f"- **이벤트:** `{action}`")
     if url:
-        lines.append(f"[👉 MR 링크]({url})")
+        lines.append(f"- **링크:** [👉 MR 링크]({url})")
 
     return "\n".join(lines)
 
