@@ -40,10 +40,39 @@ MESSAGES = {
     ),
 }
 
-if REMINDER_TYPE not in MESSAGES:
+def build_gitlab_mr_message():
+    action = os.getenv("GITLAB_MR_ACTION", "").strip()
+    project = os.getenv("GITLAB_PROJECT", "").strip()
+    iid = os.getenv("GITLAB_MR_IID", "").strip()
+    title = os.getenv("GITLAB_MR_TITLE", "").strip()
+    url = os.getenv("GITLAB_MR_URL", "").strip()
+    author = os.getenv("GITLAB_MR_AUTHOR", "").strip()
+
+    mr_ref = f"{project}!{iid}" if project and iid else ""
+
+    lines = ["@channel 🔔🐵 [GitLab MR 알림]"]
+    if mr_ref:
+        lines.append(f"MR: {mr_ref}")
+    if title:
+        lines.append(f"제목: {title}")
+    if author:
+        lines.append(f"작성자: {author}")
+    if action:
+        lines.append(f"이벤트: {action}")
+    if url:
+        lines.append(f"[MR 링크]({url})")
+
+    return "\n".join(lines)
+
+
+if REMINDER_TYPE == "gitlab_mr":
+    text = build_gitlab_mr_message()
+elif REMINDER_TYPE in MESSAGES:
+    text = MESSAGES[REMINDER_TYPE]
+else:
     raise ValueError(f"Unknown reminder type: {REMINDER_TYPE}")
 
-payload = {"text": MESSAGES[REMINDER_TYPE]}
+payload = {"text": text}
 if CHANNEL:
     payload["channel"] = CHANNEL
 

@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       reminder_type:
-        description: "scrum_prep | scrum | jira_morning | jira | jira_evening"
+        description: "scrum_prep | scrum | jira_morning | jira | jira_evening | gitlab_mr"
         required: true
         default: "scrum"
       channel_override:
@@ -19,6 +19,7 @@ on:
       - jira
       - jira_morning
       - jira_evening
+      - gitlab_mr
 
 jobs:
   send-reminder:
@@ -56,7 +57,7 @@ jobs:
           fi
 
           case "$type" in
-            scrum_prep|scrum|jira_morning|jira|jira_evening) ;;
+            scrum_prep|scrum|jira_morning|jira|jira_evening|gitlab_mr) ;;
             *)
               echo "Unsupported reminder type: $type"
               exit 1
@@ -64,6 +65,25 @@ jobs:
           esac
 
           echo "type=$type" >> "$GITHUB_OUTPUT"
+
+      - name: Decide delivery
+        id: gate
+        shell: bash
+        run: |
+          send_enabled="true"
+
+          if [ "${{ github.event_name }}" = "repository_dispatch" ] && [ "${{ steps.resolve.outputs.type }}" = "gitlab_mr" ]; then
+            action="${{ github.event.client_payload.action }}"
+            case "$action" in
+              open|opened|reopen|reopened) ;;
+              *)
+                send_enabled="false"
+                echo "Skipping gitlab_mr for action: $action"
+                ;;
+            esac
+          fi
+
+          echo "send_enabled=$send_enabled" >> "$GITHUB_OUTPUT"
 
       - name: Resolve channel target
         id: target
@@ -86,9 +106,16 @@ jobs:
           echo "strict_channel_override=$strict_channel_override" >> "$GITHUB_OUTPUT"
 
       - name: Send to Mattermost
+        if: steps.gate.outputs.send_enabled == 'true'
         run: python3 bot/reminder.py "${{ steps.resolve.outputs.type }}"
         env:
           MATTERMOST_WEBHOOK_URL: ${{ secrets.MATTERMOST_WEBHOOK_URL }}
           MATTERMOST_CHANNEL: ${{ steps.target.outputs.channel }}
           MATTERMOST_STRICT_CHANNEL_OVERRIDE: ${{ steps.target.outputs.strict_channel_override }}
           JIRA_URL: ${{ secrets.JIRA_URL }}
+          GITLAB_MR_ACTION: ${{ github.event.client_payload.action }}
+          GITLAB_PROJECT: ${{ github.event.client_payload.project }}
+          GITLAB_MR_IID: ${{ github.event.client_payload.iid }}
+          GITLAB_MR_TITLE: ${{ github.event.client_payload.title }}
+          GITLAB_MR_URL: ${{ github.event.client_payload.url }}
+          GITLAB_MR_AUTHOR: ${{ github.event.client_payload.author }}

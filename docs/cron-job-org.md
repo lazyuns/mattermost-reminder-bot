@@ -46,6 +46,21 @@ You can use either pattern. Pattern A is simpler.
 {"event_type":"jira_evening"}
 ```
 
+```json
+{
+  "event_type": "gitlab_mr",
+  "client_payload": {
+    "reminder_type": "gitlab_mr",
+    "action": "open",
+    "project": "group/project",
+    "iid": "123",
+    "title": "feat: add MR notification",
+    "url": "https://gitlab.example.com/group/project/-/merge_requests/123",
+    "author": "홍길동"
+  }
+}
+```
+
 ### Pattern B: generic event + payload
 
 ```json
