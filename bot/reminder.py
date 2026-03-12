@@ -27,8 +27,9 @@ MESSAGES = {
     ),
     "jira_morning": (
         "@channel\n"
-        "### ☀️🐵 Jira 업데이트 알림 (오전)\n"
+        "### ☀️🐵 Jira 업데이트 알림\n"
         "오늘 작업 시작 전에 Jira 상태를 업데이트해주세요.\n"
+        "오늘 하루도 화이팅!\n"
         f"- [👉 Jira 링크]({JIRA_DOC_URL})"
     ),
     "jira": (
@@ -39,8 +40,9 @@ MESSAGES = {
     ),
     "jira_evening": (
         "@channel\n"
-        "### 🌙🐵 Jira 업데이트 알림 (오후)\n"
+        "### 🌙🐵 Jira 업데이트 알림\n"
         "하루 마무리 전에 Jira 진행상태/작업로그를 업데이트해주세요.\n"
+        "오늘도 수고 많았어요 !\n"
         f"- [👉 Jira 링크]({JIRA_DOC_URL})"
     ),
 }
