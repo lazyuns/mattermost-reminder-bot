@@ -12,6 +12,10 @@ Use `cron-job.org` to call GitHub's dispatch endpoint at the exact target times.
 
 - `channel_override`: manual test or dispatch payload override channel
 
+## Optional GitHub variables
+
+- `ENABLE_JIRA_REMINDERS`: `true`일 때만 Jira 알림 전송. 값이 없거나 `true`가 아니면 `jira_morning`, `jira`, `jira_evening`은 건너뜀
+
 ## Endpoint
 
 - URL: `https://api.github.com/repos/lazyuns/mattermost-reminder-bot/dispatches`
