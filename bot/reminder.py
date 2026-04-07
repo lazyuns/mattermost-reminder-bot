@@ -17,13 +17,13 @@ MESSAGES = {
         "@channel\n"
         "### ✍️🐵 스크럼 회의록 사전 작성 알림\n"
         "오전 9:30 스크럼 전, 노션 회의록에 오늘 공유할 내용을 미리 작성해주세요.\n"
-        # f"- [👉 Scrum 링크]({SCRUM_DOC_URL})"
+        f"- [👉 Scrum 링크]({SCRUM_DOC_URL})"
     ),
     "scrum": (
         "@channel\n"
         "### 🏁🐵 스크럼 알림\n"
         "평일 오전 9:30 스크럼 시작합니다. C103 팀원 전원 참석 부탁드립니다.\n"
-        # f"- [👉 Scrum 링크]({SCRUM_DOC_URL})"
+        f"- [👉 Scrum 링크]({SCRUM_DOC_URL})"
     ),
     "jira_morning": (
         "@channel\n"
