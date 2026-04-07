@@ -3,6 +3,15 @@
 This project no longer relies on GitHub `schedule`.
 Use `cron-job.org` to call GitHub's dispatch endpoint at the exact target times.
 
+## Required GitHub secrets
+
+- `MATTERMOST_CHANNEL_JIRA_SCRUM`: Jira / Scrum Mattermost incoming webhook URL
+- `MATTERMOST_CHANNEL_MR`: GitLab MR Mattermost incoming webhook URL
+
+## Optional overrides
+
+- `channel_override`: manual test or dispatch payload override channel
+
 ## Endpoint
 
 - URL: `https://api.github.com/repos/lazyuns/mattermost-reminder-bot/dispatches`

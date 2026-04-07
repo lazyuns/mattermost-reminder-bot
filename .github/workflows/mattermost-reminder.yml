@@ -29,11 +29,17 @@ jobs:
 
       - name: Validate required secrets
         shell: bash
-        env:
-          MATTERMOST_WEBHOOK_URL: ${{ secrets.MATTERMOST_WEBHOOK_URL }}
         run: |
-          if [ -z "$MATTERMOST_WEBHOOK_URL" ]; then
-            echo "Missing required secret: MATTERMOST_WEBHOOK_URL"
+          webhook_jira_scrum="${{ secrets.MATTERMOST_CHANNEL_JIRA_SCRUM }}"
+          webhook_mr="${{ secrets.MATTERMOST_CHANNEL_MR }}"
+
+          if [ -z "$webhook_jira_scrum" ]; then
+            echo "Missing required secret: MATTERMOST_CHANNEL_JIRA_SCRUM"
+            exit 1
+          fi
+
+          if [ -z "$webhook_mr" ]; then
+            echo "Missing required secret: MATTERMOST_CHANNEL_MR"
             exit 1
           fi
 
@@ -89,8 +95,8 @@ jobs:
         id: target
         shell: bash
         run: |
-          channel="${{ secrets.MATTERMOST_CHANNEL }}"
           strict_channel_override="false"
+          channel=""
 
           if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ github.event.inputs.channel_override }}" ]; then
             channel="${{ github.event.inputs.channel_override }}"
@@ -105,11 +111,32 @@ jobs:
           echo "channel=$channel" >> "$GITHUB_OUTPUT"
           echo "strict_channel_override=$strict_channel_override" >> "$GITHUB_OUTPUT"
 
+      - name: Resolve webhook target
+        id: webhook
+        shell: bash
+        run: |
+          type="${{ steps.resolve.outputs.type }}"
+          webhook_jira_scrum="${{ secrets.MATTERMOST_CHANNEL_JIRA_SCRUM }}"
+          webhook_mr="${{ secrets.MATTERMOST_CHANNEL_MR }}"
+
+          if [ "$type" = "gitlab_mr" ]; then
+            webhook_url="$webhook_mr"
+          else
+            webhook_url="$webhook_jira_scrum"
+          fi
+
+          if [ -z "$webhook_url" ]; then
+            echo "Missing required webhook secret for reminder type: $type"
+            exit 1
+          fi
+
+          echo "webhook_url=$webhook_url" >> "$GITHUB_OUTPUT"
+
       - name: Send to Mattermost
         if: steps.gate.outputs.send_enabled == 'true'
         run: python3 bot/reminder.py "${{ steps.resolve.outputs.type }}"
         env:
-          MATTERMOST_WEBHOOK_URL: ${{ secrets.MATTERMOST_WEBHOOK_URL }}
+          MATTERMOST_WEBHOOK_URL: ${{ steps.webhook.outputs.webhook_url }}
           MATTERMOST_CHANNEL: ${{ steps.target.outputs.channel }}
           MATTERMOST_STRICT_CHANNEL_OVERRIDE: ${{ steps.target.outputs.strict_channel_override }}
           JIRA_URL: ${{ secrets.JIRA_URL }}
