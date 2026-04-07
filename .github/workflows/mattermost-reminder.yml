@@ -76,18 +76,9 @@ jobs:
         id: gate
         shell: bash
         run: |
-          type="${{ steps.resolve.outputs.type }}"
-          jira_enabled="${{ vars.ENABLE_JIRA_REMINDERS }}"
           send_enabled="true"
 
-          if [ "$type" = "jira_morning" ] || [ "$type" = "jira" ] || [ "$type" = "jira_evening" ]; then
-            if [ "$jira_enabled" != "true" ]; then
-              send_enabled="false"
-              echo "Skipping Jira reminder because ENABLE_JIRA_REMINDERS is not true"
-            fi
-          fi
-
-          if [ "${{ github.event_name }}" = "repository_dispatch" ] && [ "$type" = "gitlab_mr" ]; then
+          if [ "${{ github.event_name }}" = "repository_dispatch" ] && [ "${{ steps.resolve.outputs.type }}" = "gitlab_mr" ]; then
             action="${{ github.event.client_payload.action }}"
             case "$action" in
               open|opened|reopen|reopened) ;;
