@@ -45,6 +45,12 @@ MESSAGES = {
         "오늘도 수고 많았어요 !\n"
         f"- [👉 Jira 링크]({JIRA_DOC_URL})"
     ),
+    "kpt": (
+        "@channel\n"
+        "### 📝🐵 KPT 회고 작성 알림\n"
+        "평일 오후 5:30 KPT 회고 작성 시간입니다. C106 팀원 전원 작성 부탁드립니다.\n"
+        "Keep / Problem / Try를 정리해서 회고 준비해주세요."
+    ),
 }
 
 def build_gitlab_mr_message():

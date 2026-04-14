@@ -56,6 +56,10 @@ You can use either pattern. Pattern A is simpler.
 ```
 
 ```json
+{"event_type":"kpt"}
+```
+
+```json
 {
   "event_type": "gitlab_mr",
   "client_payload": {
@@ -82,6 +86,15 @@ You can use either pattern. Pattern A is simpler.
 }
 ```
 
+```json
+{
+  "event_type": "send_reminder",
+  "client_payload": {
+    "reminder_type": "kpt"
+  }
+}
+```
+
 Optional test override channel:
 
 ```json
@@ -102,5 +115,6 @@ Optional test override channel:
 - Jira update first ping (KST 08:50): `50 23 * * 0-4`
 - Jira update follow-ups every 3h (KST 11:50, 14:50): `50 2,5 * * 1-5`
 - Jira evening (KST 17:50): `50 8 * * 1-5`
+- KPT retrospective writing (KST 17:30): `30 8 * * 1-5`
 
-Create 6 cron-job.org jobs: scrum_prep, scrum, jira_morning, jira (first), jira (follow-ups), jira_evening.
+Create the required cron-job.org jobs for scrum/jira reminders, and add `kpt` on the schedule your team wants.

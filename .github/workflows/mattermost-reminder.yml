@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       reminder_type:
-        description: "scrum_prep | scrum | jira_morning | jira | jira_evening | gitlab_mr"
+        description: "scrum_prep | scrum | jira_morning | jira | jira_evening | kpt | gitlab_mr"
         required: true
         default: "scrum"
       channel_override:
@@ -19,6 +19,7 @@ on:
       - jira
       - jira_morning
       - jira_evening
+      - kpt
       - gitlab_mr
 
 jobs:
@@ -63,7 +64,7 @@ jobs:
           fi
 
           case "$type" in
-            scrum_prep|scrum|jira_morning|jira|jira_evening|gitlab_mr) ;;
+            scrum_prep|scrum|jira_morning|jira|jira_evening|kpt|gitlab_mr) ;;
             *)
               echo "Unsupported reminder type: $type"
               exit 1
